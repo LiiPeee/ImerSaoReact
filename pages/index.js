@@ -1,34 +1,9 @@
 import appConfig from '../config.json';
+import React from 'react';
+import{useRouter} from 'next/router';
 import { Box, Button, Text, TextField, Image } from '@skynexui/components';
 
-function GlobalStyle() {
-  return (
-    <style global jsx>{`
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          list-style: none;
-        }
-        body {
-          font-family: 'Open Sans', sans-serif;
-        }
-        /* App fit Height */ 
-        html, body, #__next {
-          min-height: 100vh;
-          display: flex;
-          flex: 1;
-        }
-        #__next {
-          flex: 1;
-        }
-        #__next > * {
-          flex: 1;
-        }
-        /* ./App fit Height */ 
-      `}</style>
-  );
-}
+
 
 function Title(props) {
   const Tag = props.tag || 'h1';
@@ -62,11 +37,12 @@ function Title(props) {
 //  export default HomePage
 
 export default function PaginaInicial() {
-  const username = 'LiiPeee';
+  const [username, setUsername] =  React.useState('LiiPeee');
+  const roteamento = useRouter();
 
   return (
     <>
-      <GlobalStyle />
+      {/* <GlobalStyle /> */}
       <Box
         styleSheet={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -93,6 +69,11 @@ export default function PaginaInicial() {
           {/* Formulário */}
           <Box
             as="form"
+            onSubmit ={ function (infosDoEvento){
+              infosDoEvento.preventDefault();
+              console.log('Houve um submete');
+              window.location.href = '/chat';
+            }}
             styleSheet={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
               width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
@@ -102,8 +83,28 @@ export default function PaginaInicial() {
             <Text variant="body3" styleSheet={{ marginBottom: '30px', color: appConfig.theme.colors.neutrals[300] }}>
               {appConfig.name}
             </Text>
-
+            {/* <input type="text"
+            value= {username}
+            onChange={function(event){
+              console.log("Usuario Digitou" , event.target.value);
+              // Trocar Usuario
+              const valor = event.target.value;
+              // Trocar valor da variavel
+              setUsername(valor);  
+              
+            }}
+            /> */}
             <TextField
+              value= {username}
+              onChange={function(event){
+                console.log("Usuario Digitou" , event.target.value);
+                // Trocar Usuario
+                const valor = event.target.value;
+                // Trocar valor da variavel
+                setUsername(valor);  
+                
+              }}
+
               fullWidth
               textFieldColors={{
                 neutral: {
@@ -147,8 +148,8 @@ export default function PaginaInicial() {
           >
             <Image
               styleSheet={{
-                borderRadius: '50%',
-                marginBottom: '16px',
+                borderRadius: '45%',
+                marginBottom: '12px',
               }}
               src={`https://github.com/${username}.png`}
             />
