@@ -1,28 +1,59 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React, { useState } from 'react';
 import appConfig from '../config.json';
+import {useRouter} from 'next/router';
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
+
+const SUPABASE_ANOM_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0Mzc1NjkxOSwiZXhwIjoxOTU5MzMyOTE5fQ.mcG0K2SjajFB8W_opqAEXehKFHpeeyZZ0-2XXPhpaxo';
+const SUPABASE_URL = 'https://runycmnzvfdqjyamhuyr.supabase.co';
+const SUPABASE_CLIENT = createClient(SUPABASE_URL, SUPABASE_ANOM_KEY);
+
+
+
+
 
 export default function ChatPage() {
+    const roteamento = useRouter();
+    const usuarioLogado = roteamento.query.username;
+    console.log(roteamento.query);
     const [mensagem, setMensagem] = React.useState('')
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
-    
-    const SUPABASE_ANOM_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0Mzc1NjkxOSwiZXhwIjoxOTU5MzMyOTE5fQ.mcG0K2SjajFB8W_opqAEXehKFHpeeyZZ0-2XXPhpaxo'
-    const SUPABASE_URL = 'https://runycmnzvfdqjyamhuyr.supabase.co'
 
-    // Sua lógica vai aqui
-    // Usuario digita uma no campo textarea
-    // Apertar enter para enviar
-    // tem que adicionar um texto para listagem
-    // ./Sua lógica vai aqui
+
+    React.useEffect(() => {
+        SUPABASE_CLIENT
+            .from('mensagens')
+            .select('*')
+            .order('id',{ascending: false})
+            .then(({ data }) => {
+                console.log('Dados da Consulta', data);
+                setListaDeMensagens(data);
+            });
+    }, []);
+
+
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
-            
-
+            // id: listaDeMensagens.length +1,
+            de: usuarioLogado,
+            texto: novaMensagem,
         };
-        setListaDeMensagens([
-            mensagem,
-            ...listaDeMensagens,
-        ]);
+        SUPABASE_CLIENT
+            .from('mensagens')
+            .insert([
+                mensagem
+            ])
+            .then(({ data }) => {
+                console.log('Criando mensagem', data);
+                setListaDeMensagens([
+                    data[0],
+                    ...listaDeMensagens,
+
+                ]);
+
+            });
+
+
         setMensagem('');
 
     }
@@ -159,50 +190,50 @@ function MessageList(props) {
         >
             {props.mensagens.map((mensagem) => {
                 return (
-                
-                <Text
-                    key={mensagem.id}
-                    tag="li"
-                    styleSheet={{
-                        borderRadius: '5px',
-                        padding: '6px',
-                        marginBottom: '12px',
-                        hover: {
-                            backgroundColor: appConfig.theme.colors.neutrals[700],
-                        }
-                    }}
-                >
-                    <Box
+
+                    <Text
+                        key={mensagem.id}
+                        tag="li"
                         styleSheet={{
-                            marginBottom: '8px',
+                            borderRadius: '5px',
+                            padding: '6px',
+                            marginBottom: '12px',
+                            hover: {
+                                backgroundColor: appConfig.theme.colors.neutrals[700],
+                            }
                         }}
                     >
-                        <Image
+                        <Box
                             styleSheet={{
-                                width: '20px',
-                                height: '20px',
-                                borderRadius: '50%',
-                                display: 'inline-block',
-                                marginRight: '8px',
+                                marginBottom: '8px',
                             }}
-                            src={`https://github.com/vanessametonini.png`}
-                        />
-                        <Text tag="strong">
-                            {mensagem.de}
-                        </Text>
-                        <Text
-                            styleSheet={{
-                                fontSize: '10px',
-                                marginLeft: '8px',
-                                color: appConfig.theme.colors.neutrals[300],
-                            }}
-                            tag="span"
                         >
-                            {(new Date().toLocaleDateString())}
-                        </Text>
-                    </Box>
-                    {mensagem.texto}
-                </Text>
+                            <Image
+                                styleSheet={{
+                                    width: '20px',
+                                    height: '20px',
+                                    borderRadius: '50%',
+                                    display: 'inline-block',
+                                    marginRight: '8px',
+                                }}
+                                src={`https://github.com/${mensagem.de}.png`}
+                            />
+                            <Text tag="strong">
+                                {mensagem.de}
+                            </Text>
+                            <Text
+                                styleSheet={{
+                                    fontSize: '10px',
+                                    marginLeft: '8px',
+                                    color: appConfig.theme.colors.neutrals[300],
+                                }}
+                                tag="span"
+                            >
+                                {(new Date().toLocaleDateString())}
+                            </Text>
+                        </Box>
+                        {mensagem.texto}
+                    </Text>
 
                 );
 
